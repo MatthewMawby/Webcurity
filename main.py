@@ -3,12 +3,16 @@
 
 import cv2
 import datetime
+import json
 
 
-MIN_AREA = 500                #Min area of contours to detect as motion
-camera = cv2.VideoCapture(0)  #Initialize the webcam for videocapture
-firstFrame = None             #Set the firstframe to none
+settings_file = open('settings.json', 'r')
+settings = json.load(settings_file)
 
+EMAIL = settings['email']
+MIN_AREA = int(settings['min_contour'])  #Min area of contours to detect as motion
+camera = cv2.VideoCapture(0)        #Initialize the webcam for videocapture
+firstFrame = None                   #Set the firstframe to none
 
 while True:
     #read in the
@@ -39,7 +43,7 @@ while True:
 
         #Surround the contour with a rectangle!
         (x, y, w, h) = cv2.boundingRect(c)
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
     #Write time and date
     cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
