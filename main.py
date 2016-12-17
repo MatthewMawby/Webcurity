@@ -8,6 +8,7 @@ from apiclient import discovery
 import httplib2
 import cv2
 import datetime
+import time
 import json
 
 settings_file = open('settings.json', 'r')
@@ -28,9 +29,16 @@ if NOTIFY:
 #mes = create_message(EMAIL, EMAIL, 'Motion Detected!', "Motion has been detected by your security webcam!")
 #send_message(service, "me", mes)
 
+wait_for_focus = True
+time_detected = None
+motion_detected = False
 
 while True:
-    #read in the
+    #let the cmamera focus
+    if wait_for_focus:
+        time.sleep(2)
+
+    #read in a frame from the camera
     (grabbed, frame) = camera.read()
     if not grabbed:
         break
@@ -39,8 +47,10 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
+    #set the firstframe if not set
     if firstFrame is None:
         firstFrame = gray
+        wait_for_focus = False
         continue
 
     #Find the difference between the current frame and the first frame. Difference = "motion"
