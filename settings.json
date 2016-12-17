@@ -1,4 +1,5 @@
 {
     "email": "themesta@gmail.com",
-    "min_contour": 500
+    "min_contour": 500,
+    "email_notifications": true
 }

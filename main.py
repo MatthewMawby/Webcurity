@@ -4,15 +4,24 @@
 import cv2
 import datetime
 import json
-
+from authenticate import get_credentials
 
 settings_file = open('settings.json', 'r')
 settings = json.load(settings_file)
 
 EMAIL = settings['email']
+NOTIFY = settings['email_notifications']
 MIN_AREA = int(settings['min_contour'])  #Min area of contours to detect as motion
 camera = cv2.VideoCapture(0)        #Initialize the webcam for videocapture
 firstFrame = None                   #Set the firstframe to none
+
+if NOTIFY:
+    #Authenticate client with gmail api
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('gmail', 'v1', http=http)
+
+
 
 while True:
     #read in the
