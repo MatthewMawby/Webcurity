@@ -1,10 +1,14 @@
 #Motion detection code originally written by Adrian Rosebrock, modified by Matthew Mawby
 #Adrian's original code can be found here: http://www.pyimagesearch.com/2015/05/25/basic-motion-detection-and-tracking-with-python-and-opencv/
 
+from authenticate import get_credentials
+from mail import create_message
+from mail import send_message
+from apiclient import discovery
+import httplib2
 import cv2
 import datetime
 import json
-from authenticate import get_credentials
 
 settings_file = open('settings.json', 'r')
 settings = json.load(settings_file)
@@ -21,6 +25,8 @@ if NOTIFY:
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
 
+#mes = create_message(EMAIL, EMAIL, 'Motion Detected!', "Motion has been detected by your security webcam!")
+#send_message(service, "me", mes)
 
 
 while True:
