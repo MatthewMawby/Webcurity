@@ -1,7 +1,8 @@
 {
     "email": "themesta@gmail.com",
-    "min_contour": 37500,
+    "min_contour": 10000,
     "email_notifications": true,
     "xres": 640,
-    "yres": 480
+    "yres": 480,
+    "record_time": 30
 }
