@@ -10,15 +10,32 @@ import cv2
 import datetime
 import time
 import json
+import sys
 
 settings_file = open('settings.json', 'r')
 settings = json.load(settings_file)
 
+
+RES_X = int(settings['xres'])
+RES_Y = int(settings['yres'])
 EMAIL = settings['email']
 NOTIFY = settings['email_notifications']
 MIN_AREA = int(settings['min_contour'])  #Min area of contours to detect as motion
 camera = cv2.VideoCapture(0)        #Initialize the webcam for videocapture
 firstFrame = None                   #Set the firstframe to none
+
+# Define the codec for video writing
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+
+"""
+#Set the capture resolution & check it was set properly
+x_res_set = camera.set(3, RES_X)
+y_res_set = camera.set(4, RES_Y)
+if not x_res_set and y_res_set:
+    sys.stderr.write("Failed to set frame resolution\n")
+    sys.exit(0)
+"""
+
 
 if NOTIFY:
     #Authenticate client with gmail api
@@ -32,6 +49,7 @@ if NOTIFY:
 wait_for_focus = True
 time_detected = None
 motion_detected = False
+out = None
 
 while True:
     #let the cmamera focus
@@ -42,6 +60,18 @@ while True:
     (grabbed, frame) = camera.read()
     if not grabbed:
         break
+
+    if motion_detected:
+        if out is not None:
+            framecopy = frame
+            #Write time and date
+            cv2.putText(framecopy, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
+            out.write(framecopy)
+        if datetime.datetime.now() >= time_detected + datetime.timedelta(seconds=30):
+            motion_detected = False
+            time_detected = None
+            out.release()
+            print "Motion Detection Ended"
 
     #Convert the frame to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -66,15 +96,22 @@ while True:
         if cv2.contourArea(c) < MIN_AREA:
             continue
 
+        if not motion_detected and time_detected is None:
+            print "Motion Detected!"
+            motion_detected = True
+            time_detected = datetime.datetime.now()
+            fname = datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p")+'_WebCurity.avi'
+            out = cv2.VideoWriter(fname, fourcc, 20.0, (RES_X, RES_Y))
+
         #Surround the contour with a rectangle!
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
     #Write time and date
     cv2.putText(frame, datetime.datetime.now().strftime("%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
     #Display the frame
     cv2.imshow("Security Feed", frame)
+
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("q"):
