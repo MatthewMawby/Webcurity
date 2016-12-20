@@ -47,6 +47,7 @@ wait_for_focus = True
 time_detected = None
 motion_detected = False
 out = None
+prevFrameTime = None
 
 while True:
     #let the cmamera focus
@@ -77,6 +78,7 @@ while True:
     #set the backFrame if not set
     if backFrame is None:
         backFrame = gray
+        prevFrameTime = datetime.datetime.now()
         wait_for_focus = False
         continue
 
@@ -115,9 +117,10 @@ while True:
     #Display the frame
     cv2.imshow("Security Feed", frame)
 
-    #if there's no motion in the frame, set the background to the current frame
-    if not motion_detected:
+    #if there's no motion in the frame & 30 secs has elapsed since last setting background, set the background to the current frame
+    if not motion_detected and datetime.datetime.now() > prevFrameTime+datetime.timedelta(seconds=30):
         backFrame = gray
+        prevFrameTime = datetime.datetime.now()
 
     #Press q to quit
     key = cv2.waitKey(1) & 0xFF
