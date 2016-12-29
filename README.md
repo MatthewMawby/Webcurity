@@ -16,5 +16,7 @@ Using webcurity is simple:
 
 Compatibility patches will be coming soon to ensure webcurity can run properly on Raspian so this can be run on a raspberry pi.
 
+The motion detection process utilized by webcurity follows this [blog](http://www.pyimagesearch.com/2015/05/25/basic-motion-detection-and-tracking-with-python-and-opencv/) by Adrian Rosebrock.
+
 If you have any questions, comments, or contributions please create an issue or submit a pr.
 Thanks!
